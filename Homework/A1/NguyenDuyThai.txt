@@ -1,0 +1,13 @@
+Classification problems in real life
+
+Example 1: Credit scoring
+	Input: Borrower's credit history
+	Output: Predict the likelihood of default: {bankrupt, payback, profitable}
+
+Example 2: Fraud detection
+	Input: Transaction patterns
+	Output: Identify patterns of fraudulent behavior: {suspicious, genuine}
+	
+Example 3: Species identification
+	Input: Genetic information
+	Output: Classify animals (terrestrial, underwater, flying} 
