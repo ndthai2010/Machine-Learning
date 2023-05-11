@@ -4,102 +4,164 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 3cc96569-5238-4a6d-aa36-8f6e54546387
-using Plots;plotly()
+# ╔═╡ e259586d-832d-4746-a803-34dcd65200f1
+using Plots; plotly()
 
-# ╔═╡ a9abb380-c7ba-11ed-0bce-7585656609bc
+# ╔═╡ d50d15d8-1eda-4440-9ca7-51f4d760d68d
 using DelimitedFiles
 
-# ╔═╡ c89dfbf6-a05e-4039-aecb-ea336152dd51
-whitewine = "D:/University/DT Coding/Machine-Learning/Datasets/winequality-white.csv"
+# ╔═╡ daeb570d-3eb9-4fda-a7b3-2ee60d7cd4b2
+using Statistics
 
-# ╔═╡ 2546a1c3-fd78-4277-8ad7-416f507bd115
-A = readdlm(whitewine, ';')
+# ╔═╡ f87455b0-d496-11ed-18a4-bda5847144a4
+σ(z) = 1 ./ (1 .+ exp.(-z))
 
-# ╔═╡ 4f89835d-1019-4da3-9af1-4176f551ca62
-redwine = "D:/University/DT Coding/Machine-Learning/Datasets/winequality-red.csv"
+# ╔═╡ 4db4d57f-0887-4e03-a452-d4c4f45472fb
+σ(0.5)
 
-# ╔═╡ 6f4156cd-7394-41ee-8fe5-32c7ef88c1c1
-B = readdlm(redwine, ';')
+# ╔═╡ ab57dad0-0c13-4bae-a04b-5b26afcaf6d1
+z = -5:0.01:5
 
-# ╔═╡ 865f0f4c-dd9d-49d4-9cf4-6ae56be4d160
-function readData(path)
-	A = readdlm(path, ';')
-	y = float.(A[2:end,end])
-	X = float.([ones(length(y)) A[2:end, 1:end-1]])
-	return X, y
+# ╔═╡ a02422d7-0907-4a8d-85d1-aba08b1e73e6
+v = σ(z)
+
+# ╔═╡ f37697d5-1994-4a8b-b9d1-126951ea0b71
+plot(z,v, title = "Sigmoid function")
+
+# ╔═╡ 3c7bc5ef-1ee1-4714-a896-f4e17b38655c
+length(z)
+
+# ╔═╡ 40e566a2-d2bc-4401-aea5-a3dd47dc7106
+X_test = rand(10, 5)
+
+# ╔═╡ 5dd3ab31-37aa-41f2-9462-97419f36dcbc
+x1 = X_test[1,:]
+
+# ╔═╡ ee4853dc-a0af-4932-9e0b-412525ce3d3a
+n = 30
+
+# ╔═╡ 78537caf-875f-46a8-a4a7-bec8d89138a0
+function readWDBC(path::String, delimiter=',',n_feature = 10)
+   A = readdlm(path,delimiter)
+    y = A[:,2]
+    X = [ones(length(y)) A[:,3:3 + n_feature - 1]]
+    return X,y
 end
 
-# ╔═╡ 825c0682-1d0b-419f-bcfa-f9eb58a65306
-X1, y1 = readData(whitewine)
+# ╔═╡ 99632f3e-4bb7-438e-b96d-c244e991fc46
+X, y = readWDBC("D:/University/DT Coding/Machine-Learning/Datasets/wdbc.txt",',',n)
 
-# ╔═╡ e2b160ab-a9cc-47bf-a863-5e58feef9bfe
-X2, y2 = readData(redwine)
+# ╔═╡ 08e3e8c0-6e77-4037-b712-aef8a466831c
+θ = rand(n + 1)
 
-# ╔═╡ 227605e2-bf33-4a91-9016-331f2dcbfdf9
-function train(X,y)
-	return inv(X'*X)*X'*y
+# ╔═╡ 704e6ba8-0994-4113-b6f7-3479c576773e
+X * θ
+
+# ╔═╡ ade94146-9377-4aca-bf01-8a61aef06f0d
+ϵ = 1e-6
+
+# ╔═╡ 27912618-cb46-428f-a99b-59aa1bacb613
+function normalize(X) 
+    X0 = X
+    μ = mean(X0[:,2:end] , dims = 1)
+    variance = std(X0[:,2:end] , dims = 1)
+    X0[:,2:end] = (X0[:,2:end] - repeat(μ, size(X0[:,2:end],1) , 1)) ./ variance 
+    return X0 , μ, variance
 end
 
-# ╔═╡ 8db72274-6da3-41d4-a7df-14d927663083
-θ_white = train(X1, y1)
+# ╔═╡ 0578599a-4069-4570-90f0-6d56d58e78b5
+X0, μ, s = normalize(X)
 
-# ╔═╡ 33e72a07-4474-48aa-8f68-e3875adb7383
-θ_red = train(X2, y2)
+# ╔═╡ 93705120-61d9-4545-b7f0-2cd0a98bcc88
+σ(X0 * θ)
 
-# ╔═╡ 3432fd4f-f1f4-4980-8d84-a97a79267862
-predict(θ, xNew) = xNew*θ
-
-# ╔═╡ d5a52030-bd42-4700-ac6e-b17f04f8100e
-ŷ_red = predict(θ_white, X2)
-
-# ╔═╡ dc967a10-d1fe-426d-8642-a82d45c84287
-ŷ_white = predict(θ_red, X1)
-
-# ╔═╡ 0069bd6d-be08-4c60-b7e0-8ade77c56535
-function classify(ŷ, y, ϵ = 0.5)
-	error = abs.(ŷ - y)
-	return error .< ϵ
+# ╔═╡ bba51448-2556-4633-8297-6bf3d49c4704
+function J(X, y, θ, λ = 0)
+    u = σ(X * θ)
+    ϵ = 1e-6
+    R = θ' * θ 
+    N = length(y) 
+    return -(y' * log.(u .+ ϵ) + (1 .- y)' * log.(1 .- u .+ ϵ)) / N + λ * R
 end
 
-# ╔═╡ e62a0607-e07a-4024-903f-92be1d1c860d
-function accuracy(ŷ, y, ϵ = 0.5)
-	error = classify(ŷ, y, ϵ)
-	acc = sum(error.== 1)/length(y)
+# ╔═╡ c41b753e-6374-4084-87d6-a45c1342fe43
+J(X0, y, θ)
+
+# ╔═╡ 20a32fe0-7bef-4e3f-bec9-4ececfc75163
+J(X, y , θ)
+
+# ╔═╡ b6918b71-978d-4dbb-b74f-2391b1dad251
+function ∇J(X, y , θ, λ = 0)
+    N = length(y)
+    return X' * (σ(X * θ) - y) / N + 2 * λ * θ 
 end
 
-# ╔═╡ 47521f49-be63-4922-b607-74ee7b299b22
-accuracy_white = accuracy(ŷ_white, y1)
+# ╔═╡ a4b2c098-e813-4825-bf5f-e71ca9f52d04
+∇J(X0, y, θ)
 
-# ╔═╡ eefb78ff-ed51-4db9-b7bf-3a18f5d6ca7f
-accuracy_red = accuracy(ŷ_red, y2)
+# ╔═╡ f9dd28b9-8137-4abd-b159-b5ee205cc342
+function bgd(X, y, θ_start, λ = 0 , α = 0.01,T = 10000)
+    θ = θ_start
+    Js = []
+    epoch = []
+    for t = 1:T
+       θ = θ - α * ∇J(X,y,θ,λ)
+        v = J(X,y,θ,λ)
+        push!(Js, v)
+        push!(epoch, t)
+    end
+    return θ ,Js , epoch
+end
 
-# ╔═╡ e9444fea-776e-4541-bca2-5c0c1408d52a
-ϵs = 0.4:0.01:0.7
+# ╔═╡ 6dfe4b14-4ed9-4d25-84ff-81aec8ac176c
+θ_best, Js, epoch = bgd(X0, y, θ, 0, 1e-1, 100000)
 
-# ╔═╡ 36e6afbb-2083-4fc9-b347-a57894e2558e
-length(ϵs)
+# ╔═╡ 7dc81e81-0c7d-4fe2-a2b0-51dfaa7826eb
+plot(1:100000, Js, xlabel ="Iterations", ylabel = "J Cost")
 
-# ╔═╡ c60ff2a5-a20d-47c9-b15e-2b3c0f59e54a
-acc_white = [accuracy(ŷ_white, y1, ϵ) for ϵ ∈ ϵs]
+# ╔═╡ f415fffa-5eff-443c-bed7-55ad267235d0
+θ_best
 
-# ╔═╡ 8b0ecd74-c662-4810-a028-358dd3503d57
-acc_red = [accuracy(ŷ_red, y2, ϵ) for ϵ ∈ ϵs]
+# ╔═╡ 3fdfc942-9396-463f-bcd0-2b17ba389492
+Js[end]
 
-# ╔═╡ 0766a752-3df8-4fb1-9e00-7c56d7903fda
-plot(ϵs, acc_white, xlabel="ϵ", ylabel="Accuracy for white wine", legend=false)
+# ╔═╡ e3a52e37-17e5-484e-a4b4-a261cf713d4c
+∇J(X0, y, θ_best)
 
-# ╔═╡ 9fb2ff51-aed6-4dea-b810-adb76bd7eb88
-plot(ϵs, acc_red, xlabel="ϵ", ylabel="Accuracy for red wine", legend=false, color=:red)
+# ╔═╡ a12d8787-d5aa-4ad3-bf99-9370700b70da
+function classify(x, θ_best)
+   score = x' * θ_best
+    if score >= 0.5
+        return 1.0
+    else
+        return 0.0
+    end
+end
+
+# ╔═╡ 0a3be904-f6cf-4cb6-a1f4-bf8e7fed45b8
+N = length(y)
+
+# ╔═╡ a6b6ce9c-3969-423a-b338-aabd25e32f30
+function accuraccy(X0, θ, N)
+    prediction = [classify(X0[i,:], θ_best) for i in 1:N]
+    return sum(prediction .== y) / length(y)
+end
+
+# ╔═╡ 88261f05-221f-441e-bd2d-02c5862c0968
+accuraccy(X0, θ_best, N)
+
+# ╔═╡ fabeb63c-ad49-48a3-a32c-fd932b3a8f8c
+
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
 [deps]
 DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
+Statistics = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [compat]
-Plots = "~1.38.8"
+Plots = "~1.38.9"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -108,7 +170,7 @@ PLUTO_MANIFEST_TOML_CONTENTS = """
 
 julia_version = "1.8.5"
 manifest_format = "2.0"
-project_hash = "1e25e44920a8683eb069cf4248e35cd3922a3a47"
+project_hash = "d127a9804d96e1bca5059ba4246b01b6eb6de48e"
 
 [[deps.ArgTools]]
 uuid = "0dad84c5-d112-42e6-8d28-ef12dabb789f"
@@ -284,15 +346,15 @@ version = "3.3.8+0"
 
 [[deps.GR]]
 deps = ["Artifacts", "Base64", "DelimitedFiles", "Downloads", "GR_jll", "HTTP", "JSON", "Libdl", "LinearAlgebra", "Pkg", "Preferences", "Printf", "Random", "Serialization", "Sockets", "TOML", "Tar", "Test", "UUIDs", "p7zip_jll"]
-git-tree-sha1 = "4423d87dc2d3201f3f1768a29e807ddc8cc867ef"
+git-tree-sha1 = "0635807d28a496bb60bc15f465da0107fb29649c"
 uuid = "28b8d3ca-fb5f-59d9-8090-bfdbd6d07a71"
-version = "0.71.8"
+version = "0.72.0"
 
 [[deps.GR_jll]]
 deps = ["Artifacts", "Bzip2_jll", "Cairo_jll", "FFMPEG_jll", "Fontconfig_jll", "GLFW_jll", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Libtiff_jll", "Pixman_jll", "Qt5Base_jll", "Zlib_jll", "libpng_jll"]
-git-tree-sha1 = "3657eb348d44575cc5560c80d7e55b812ff6ffe1"
+git-tree-sha1 = "99e248f643b052a77d2766fe1a16fb32b661afd4"
 uuid = "d2c73de3-f751-5644-a686-071e5b155ba9"
-version = "0.71.8+0"
+version = "0.72.0+0"
 
 [[deps.Gettext_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Libiconv_jll", "Pkg", "XML2_jll"]
@@ -581,9 +643,9 @@ uuid = "91d4177d-7536-5919-b921-800302f37372"
 version = "1.3.2+0"
 
 [[deps.OrderedCollections]]
-git-tree-sha1 = "85f8e6578bf1f9ee0d11e7bb1b1456435479d47c"
+git-tree-sha1 = "d321bf2de576bf25ec4d3e4360faca399afca282"
 uuid = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
-version = "1.4.1"
+version = "1.6.0"
 
 [[deps.PCRE2_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -626,9 +688,9 @@ version = "1.3.4"
 
 [[deps.Plots]]
 deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "JLFzf", "JSON", "LaTeXStrings", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "Preferences", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "RelocatableFolders", "Requires", "Scratch", "Showoff", "SnoopPrecompile", "SparseArrays", "Statistics", "StatsBase", "UUIDs", "UnicodeFun", "Unzip"]
-git-tree-sha1 = "f49a45a239e13333b8b936120fe6d793fe58a972"
+git-tree-sha1 = "186d38ea29d5c4f238b2d9fe6e1653264101944b"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.38.8"
+version = "1.38.9"
 
 [[deps.Preferences]]
 deps = ["TOML"]
@@ -738,9 +800,9 @@ uuid = "10745b16-79ce-11e8-11f9-7d13ad32a3b2"
 
 [[deps.StatsAPI]]
 deps = ["LinearAlgebra"]
-git-tree-sha1 = "f9af7f195fb13589dd2e2d57fdb401717d2eb1f6"
+git-tree-sha1 = "45a7769a04a3cf80da1c1c7c60caf932e6f4c9f7"
 uuid = "82ae8749-77ed-4fe6-ae5f-f523153014b0"
-version = "1.5.0"
+version = "1.6.0"
 
 [[deps.StatsBase]]
 deps = ["DataAPI", "DataStructures", "LinearAlgebra", "LogExpFunctions", "Missings", "Printf", "Random", "SortingAlgorithms", "SparseArrays", "Statistics", "StatsAPI"]
@@ -1029,30 +1091,41 @@ version = "1.4.1+0"
 """
 
 # ╔═╡ Cell order:
-# ╠═3cc96569-5238-4a6d-aa36-8f6e54546387
-# ╠═a9abb380-c7ba-11ed-0bce-7585656609bc
-# ╠═c89dfbf6-a05e-4039-aecb-ea336152dd51
-# ╠═2546a1c3-fd78-4277-8ad7-416f507bd115
-# ╠═4f89835d-1019-4da3-9af1-4176f551ca62
-# ╠═6f4156cd-7394-41ee-8fe5-32c7ef88c1c1
-# ╠═865f0f4c-dd9d-49d4-9cf4-6ae56be4d160
-# ╠═825c0682-1d0b-419f-bcfa-f9eb58a65306
-# ╠═e2b160ab-a9cc-47bf-a863-5e58feef9bfe
-# ╠═227605e2-bf33-4a91-9016-331f2dcbfdf9
-# ╠═8db72274-6da3-41d4-a7df-14d927663083
-# ╠═33e72a07-4474-48aa-8f68-e3875adb7383
-# ╠═3432fd4f-f1f4-4980-8d84-a97a79267862
-# ╠═d5a52030-bd42-4700-ac6e-b17f04f8100e
-# ╠═dc967a10-d1fe-426d-8642-a82d45c84287
-# ╠═0069bd6d-be08-4c60-b7e0-8ade77c56535
-# ╠═e62a0607-e07a-4024-903f-92be1d1c860d
-# ╠═47521f49-be63-4922-b607-74ee7b299b22
-# ╠═eefb78ff-ed51-4db9-b7bf-3a18f5d6ca7f
-# ╠═e9444fea-776e-4541-bca2-5c0c1408d52a
-# ╠═36e6afbb-2083-4fc9-b347-a57894e2558e
-# ╠═c60ff2a5-a20d-47c9-b15e-2b3c0f59e54a
-# ╠═8b0ecd74-c662-4810-a028-358dd3503d57
-# ╠═0766a752-3df8-4fb1-9e00-7c56d7903fda
-# ╠═9fb2ff51-aed6-4dea-b810-adb76bd7eb88
+# ╠═f87455b0-d496-11ed-18a4-bda5847144a4
+# ╠═4db4d57f-0887-4e03-a452-d4c4f45472fb
+# ╠═e259586d-832d-4746-a803-34dcd65200f1
+# ╠═ab57dad0-0c13-4bae-a04b-5b26afcaf6d1
+# ╠═a02422d7-0907-4a8d-85d1-aba08b1e73e6
+# ╠═f37697d5-1994-4a8b-b9d1-126951ea0b71
+# ╠═3c7bc5ef-1ee1-4714-a896-f4e17b38655c
+# ╠═40e566a2-d2bc-4401-aea5-a3dd47dc7106
+# ╠═5dd3ab31-37aa-41f2-9462-97419f36dcbc
+# ╠═d50d15d8-1eda-4440-9ca7-51f4d760d68d
+# ╠═daeb570d-3eb9-4fda-a7b3-2ee60d7cd4b2
+# ╠═ee4853dc-a0af-4932-9e0b-412525ce3d3a
+# ╠═78537caf-875f-46a8-a4a7-bec8d89138a0
+# ╠═99632f3e-4bb7-438e-b96d-c244e991fc46
+# ╠═08e3e8c0-6e77-4037-b712-aef8a466831c
+# ╠═704e6ba8-0994-4113-b6f7-3479c576773e
+# ╠═ade94146-9377-4aca-bf01-8a61aef06f0d
+# ╠═27912618-cb46-428f-a99b-59aa1bacb613
+# ╠═0578599a-4069-4570-90f0-6d56d58e78b5
+# ╠═93705120-61d9-4545-b7f0-2cd0a98bcc88
+# ╠═bba51448-2556-4633-8297-6bf3d49c4704
+# ╠═c41b753e-6374-4084-87d6-a45c1342fe43
+# ╠═20a32fe0-7bef-4e3f-bec9-4ececfc75163
+# ╠═b6918b71-978d-4dbb-b74f-2391b1dad251
+# ╠═a4b2c098-e813-4825-bf5f-e71ca9f52d04
+# ╠═f9dd28b9-8137-4abd-b159-b5ee205cc342
+# ╠═6dfe4b14-4ed9-4d25-84ff-81aec8ac176c
+# ╠═7dc81e81-0c7d-4fe2-a2b0-51dfaa7826eb
+# ╠═f415fffa-5eff-443c-bed7-55ad267235d0
+# ╠═3fdfc942-9396-463f-bcd0-2b17ba389492
+# ╠═e3a52e37-17e5-484e-a4b4-a261cf713d4c
+# ╠═a12d8787-d5aa-4ad3-bf99-9370700b70da
+# ╠═0a3be904-f6cf-4cb6-a1f4-bf8e7fed45b8
+# ╠═a6b6ce9c-3969-423a-b338-aabd25e32f30
+# ╠═88261f05-221f-441e-bd2d-02c5862c0968
+# ╠═fabeb63c-ad49-48a3-a32c-fd932b3a8f8c
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

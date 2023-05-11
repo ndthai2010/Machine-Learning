@@ -26,7 +26,7 @@ v = σ(z)
 plot(z, v, legend=false, title="Logistic function")
 
 # ╔═╡ d219b19a-71b4-48e9-9afe-198c75f404e1
-path = "D:/University/DT Coding/ML Julia/In Class/wdbc.txt"
+path = "D:/University/DT Coding/Machine-Learning/Datasets/wdbc.txt"
 
 # ╔═╡ c96fd973-2d74-400d-b26b-6b34f2ad977c
 function readData(path, numFeatures=10)

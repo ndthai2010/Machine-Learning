@@ -8,7 +8,7 @@ using InteractiveUtils
 using DelimitedFiles
 
 # ╔═╡ 78d51168-a046-401d-bda9-793eb207efa2
-A = readdlm("D:/University/DT Coding/ML Julia/A3/fuel.txt", ',')
+A = readdlm("D:/University/DT Coding/Machine-Learning/Datasets/fuel.txt", ',')
 
 # ╔═╡ fa5c4e60-993c-4015-8e36-676da3e9a66f
 fuelC = A[2:end, 3]

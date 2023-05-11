@@ -4,93 +4,153 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 3cc96569-5238-4a6d-aa36-8f6e54546387
-using Plots;plotly()
-
-# ╔═╡ a9abb380-c7ba-11ed-0bce-7585656609bc
+# ╔═╡ afec44c0-cd2e-11ed-3251-adf1ffd52965
 using DelimitedFiles
 
-# ╔═╡ c89dfbf6-a05e-4039-aecb-ea336152dd51
-whitewine = "D:/University/DT Coding/Machine-Learning/Datasets/winequality-white.csv"
+# ╔═╡ 4010f36c-96e6-4f5e-a5b7-9bee704eeaea
+using Plots; plotly()
 
-# ╔═╡ 2546a1c3-fd78-4277-8ad7-416f507bd115
-A = readdlm(whitewine, ';')
+# ╔═╡ 8714015d-ee30-469c-a2d5-2b0ea02e7dbb
+md"# Step 1: Input data"
 
-# ╔═╡ 4f89835d-1019-4da3-9af1-4176f551ca62
-redwine = "D:/University/DT Coding/Machine-Learning/Datasets/winequality-red.csv"
+# ╔═╡ 18790783-9a10-4262-a595-077ab34ac74f
+path = "D:/University/DT Coding/Machine-Learning/Datasets/profits.txt"
 
-# ╔═╡ 6f4156cd-7394-41ee-8fe5-32c7ef88c1c1
-B = readdlm(redwine, ';')
+# ╔═╡ 134c9a66-9a4e-41cb-b4d5-1b338e2f3202
+A = readdlm(path, ',')
 
-# ╔═╡ 865f0f4c-dd9d-49d4-9cf4-6ae56be4d160
+# ╔═╡ ea73f122-4271-4515-b4c3-006ca85c81ba
 function readData(path)
-	A = readdlm(path, ';')
-	y = float.(A[2:end,end])
-	X = float.([ones(length(y)) A[2:end, 1:end-1]])
-	return X, y
+	A = readdlm(path, ',')
+	y = A[:,2]
+	X = [ones(length(y)) A[:,1]]
+	X, y
 end
 
-# ╔═╡ 825c0682-1d0b-419f-bcfa-f9eb58a65306
-X1, y1 = readData(whitewine)
+# ╔═╡ 14a88fdb-e84c-451d-892c-0f190f4d6027
+X, y = readData(path)
 
-# ╔═╡ e2b160ab-a9cc-47bf-a863-5e58feef9bfe
-X2, y2 = readData(redwine)
+# ╔═╡ 17feae71-ec64-4f74-b5b1-2870c115e4d4
+md"# Step 2: Plot data"
 
-# ╔═╡ 227605e2-bf33-4a91-9016-331f2dcbfdf9
-function train(X,y)
-	return inv(X'*X)*X'*y
+# ╔═╡ 41be3266-eb5d-415e-a5d2-e4eb590b4ca1
+plot(X[:,2], y, st=:scatter, xlabel="Population (10K)", ylabel="Profits (10K USD)", legend=false)
+
+# ╔═╡ d314eaf7-9a82-44dd-8139-46f35c19797c
+md"# Step 3: Use the normal equation to estimate θ"
+
+# ╔═╡ 3fc1ecc3-d62b-425b-bb00-9fcc7985876b
+train(X, y) = inv(X'*X)*X'*y
+
+# ╔═╡ 5db34e0b-7042-4d9b-a9f0-ec67d46a33c0
+θ_best = train(X, y)
+
+# ╔═╡ 239c519e-d8ce-4307-a2e2-b2891215b88d
+x_min = minimum(X[:,2])
+
+# ╔═╡ 95b3fbfe-b32c-425b-ae14-f634b6204cc6
+x_max = maximum(X[:,2])
+
+# ╔═╡ 13d9ee56-fad1-46df-a961-f82505e9ee46
+y_min = θ_best'*[1; x_min]
+
+# ╔═╡ 2beb4cfc-03be-447f-87cd-121fac56c51d
+y_max = θ_best'*[1; x_max]
+
+# ╔═╡ 848e81dc-efd7-4e80-a38f-b6b1042b2367
+plot!([x_min; x_max], [y_min;y_max], color=:red, lw=2)
+
+# ╔═╡ ce613244-e928-4947-a05d-45b2a393c919
+md"# Step 4: BGD"
+
+# ╔═╡ 0eada1c8-306a-4bea-95b3-54870acd234e
+md"$\theta_{t+1} = \theta_t - \alpha_t \nabla J(\theta_t)$"
+
+# ╔═╡ 7f61677b-b1c9-4261-8c4c-a564a188daf0
+
+
+# ╔═╡ 3ffe7d30-f64e-4263-8520-e9a33715ee26
+function J(X, y, θ) 
+	ϵ = X*θ - y
+	ϵ'*ϵ/(2*length(y)) # sum(ϵ .^2)/(2*length(y))
 end
 
-# ╔═╡ 8db72274-6da3-41d4-a7df-14d927663083
-θ_white = train(X1, y1)
+# ╔═╡ a1bea253-5630-4da9-95a3-71944c465ab2
+J(X, y, θ_best)
 
-# ╔═╡ 33e72a07-4474-48aa-8f68-e3875adb7383
-θ_red = train(X2, y2)
+# ╔═╡ 15c43887-50d8-4815-9ee1-37142b93567b
+J(X, y, [0; 0])
 
-# ╔═╡ 3432fd4f-f1f4-4980-8d84-a97a79267862
-predict(θ, xNew) = xNew*θ
+# ╔═╡ 5b755aa0-3212-4234-9c73-128454e6276b
+J(X, y, rand(2))
 
-# ╔═╡ d5a52030-bd42-4700-ac6e-b17f04f8100e
-ŷ_red = predict(θ_white, X2)
+# ╔═╡ 43588f13-4b75-4d36-9e98-6e5076cbb5a8
+# θ_0, θ_1, J([θ_0, θ_1]), Oxyz
 
-# ╔═╡ dc967a10-d1fe-426d-8642-a82d45c84287
-ŷ_white = predict(θ_red, X1)
+# ╔═╡ 72249ec4-74e5-45a3-ba45-8d5dc7be177f
+u = -5:0.1:5
 
-# ╔═╡ 0069bd6d-be08-4c60-b7e0-8ade77c56535
-function classify(ŷ, y, ϵ = 0.5)
-	error = abs.(ŷ - y)
-	return error .< ϵ
+# ╔═╡ 013eedee-e3e9-4729-bb5d-a6b0040a7d1b
+v = -4:0.1:4
+
+# ╔═╡ a6050b6a-8a09-4094-857f-414225f76933
+f(u, v) = J(X, y, [u; v])
+
+# ╔═╡ 22784b43-78e5-4908-ad05-9de01f27f7c4
+U = repeat(u', 10, 1)
+
+# ╔═╡ 65139afc-457a-4a76-84f6-55a31b3f0eda
+V = repeat(v, 1, 10, length(u))
+
+# ╔═╡ a4613687-eecc-4f24-a6ab-eecdc9c9395d
+W = map((u, v) -> f(u, v), U, V)
+
+# ╔═╡ 054d7f10-3dae-4cca-84f8-a0663731802e
+plot(u, v, W, st=:surface, xlabel="θ_0", ylabel="θ_1", zlabel="J(θ)")
+
+# ╔═╡ 66ba1bae-bbcb-4648-99de-dab04e4651e8
+plot(u, v, W, st=:contour, fill=true, xlabel="0_0", ylabel="θ_1", zlabel="J(θ)")
+
+# ╔═╡ 6ac1e38d-8c9c-4e4e-93e0-8e906713eccf
+∇J(X, y, θ) = X'*(X*θ - y)/length(y) # gradient of the linear regression model
+
+# ╔═╡ 95307ba1-5848-4ccd-83e7-1a4065fd80ca
+function bgd(X, y, θ_start, α, T=100)
+	θ = θ_start
+	θs = []
+	for t=1:T
+		θ = θ - α*∇J(X, y, θ)
+		push!(θs, θ)
+	end
+	return θs
 end
 
-# ╔═╡ e62a0607-e07a-4024-903f-92be1d1c860d
-function accuracy(ŷ, y, ϵ = 0.5)
-	error = classify(ŷ, y, ϵ)
-	acc = sum(error.== 1)/length(y)
-end
+# ╔═╡ 617f7cb3-6a2a-442c-ab46-aacea18ba396
+θ_start = zeros(2)
 
-# ╔═╡ 47521f49-be63-4922-b607-74ee7b299b22
-accuracy_white = accuracy(ŷ_white, y1)
+# ╔═╡ e49384a3-ff50-4a7b-b3f0-dbae7562a24d
+T = 2000
 
-# ╔═╡ eefb78ff-ed51-4db9-b7bf-3a18f5d6ca7f
-accuracy_red = accuracy(ŷ_red, y2)
+# ╔═╡ 933fc4e1-50fa-4f51-af92-607706e94656
+θs = bgd(X, y, θ_start, 0.01, T)
 
-# ╔═╡ e9444fea-776e-4541-bca2-5c0c1408d52a
-ϵs = 0.4:0.01:0.7
+# ╔═╡ 15feb48a-e555-4ef0-944c-dd3d06a7c4af
+Js = map(θ -> J(X, y, θ), θs)
 
-# ╔═╡ 36e6afbb-2083-4fc9-b347-a57894e2558e
-length(ϵs)
+# ╔═╡ 9dc94ba1-6d3b-4a4e-a3ad-427b577d0f15
+plot(1:T, Js, xlabel="iteration", ylabel="J", legend=false)
 
-# ╔═╡ c60ff2a5-a20d-47c9-b15e-2b3c0f59e54a
-acc_white = [accuracy(ŷ_white, y1, ϵ) for ϵ ∈ ϵs]
+# ╔═╡ ed4ec569-41f7-4205-a614-ff21d94d6876
+J(X, y, θ_best)
 
-# ╔═╡ 8b0ecd74-c662-4810-a028-358dd3503d57
-acc_red = [accuracy(ŷ_red, y2, ϵ) for ϵ ∈ ϵs]
+# ╔═╡ 932bab1d-0bde-4eab-898c-94c1f00b0768
+θs[end]
 
-# ╔═╡ 0766a752-3df8-4fb1-9e00-7c56d7903fda
-plot(ϵs, acc_white, xlabel="ϵ", ylabel="Accuracy for white wine", legend=false)
+# ╔═╡ 9e7b549e-83dc-42ba-9e75-f21b9a318a63
+θ_best
 
-# ╔═╡ 9fb2ff51-aed6-4dea-b810-adb76bd7eb88
-plot(ϵs, acc_red, xlabel="ϵ", ylabel="Accuracy for red wine", legend=false, color=:red)
+# ╔═╡ ba4ffae4-150c-41bf-9332-53c13056d662
+
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -581,9 +641,9 @@ uuid = "91d4177d-7536-5919-b921-800302f37372"
 version = "1.3.2+0"
 
 [[deps.OrderedCollections]]
-git-tree-sha1 = "85f8e6578bf1f9ee0d11e7bb1b1456435479d47c"
+git-tree-sha1 = "d78db6df34313deaca15c5c0b9ff562c704fe1ab"
 uuid = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
-version = "1.4.1"
+version = "1.5.0"
 
 [[deps.PCRE2_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -1029,30 +1089,49 @@ version = "1.4.1+0"
 """
 
 # ╔═╡ Cell order:
-# ╠═3cc96569-5238-4a6d-aa36-8f6e54546387
-# ╠═a9abb380-c7ba-11ed-0bce-7585656609bc
-# ╠═c89dfbf6-a05e-4039-aecb-ea336152dd51
-# ╠═2546a1c3-fd78-4277-8ad7-416f507bd115
-# ╠═4f89835d-1019-4da3-9af1-4176f551ca62
-# ╠═6f4156cd-7394-41ee-8fe5-32c7ef88c1c1
-# ╠═865f0f4c-dd9d-49d4-9cf4-6ae56be4d160
-# ╠═825c0682-1d0b-419f-bcfa-f9eb58a65306
-# ╠═e2b160ab-a9cc-47bf-a863-5e58feef9bfe
-# ╠═227605e2-bf33-4a91-9016-331f2dcbfdf9
-# ╠═8db72274-6da3-41d4-a7df-14d927663083
-# ╠═33e72a07-4474-48aa-8f68-e3875adb7383
-# ╠═3432fd4f-f1f4-4980-8d84-a97a79267862
-# ╠═d5a52030-bd42-4700-ac6e-b17f04f8100e
-# ╠═dc967a10-d1fe-426d-8642-a82d45c84287
-# ╠═0069bd6d-be08-4c60-b7e0-8ade77c56535
-# ╠═e62a0607-e07a-4024-903f-92be1d1c860d
-# ╠═47521f49-be63-4922-b607-74ee7b299b22
-# ╠═eefb78ff-ed51-4db9-b7bf-3a18f5d6ca7f
-# ╠═e9444fea-776e-4541-bca2-5c0c1408d52a
-# ╠═36e6afbb-2083-4fc9-b347-a57894e2558e
-# ╠═c60ff2a5-a20d-47c9-b15e-2b3c0f59e54a
-# ╠═8b0ecd74-c662-4810-a028-358dd3503d57
-# ╠═0766a752-3df8-4fb1-9e00-7c56d7903fda
-# ╠═9fb2ff51-aed6-4dea-b810-adb76bd7eb88
+# ╠═afec44c0-cd2e-11ed-3251-adf1ffd52965
+# ╠═8714015d-ee30-469c-a2d5-2b0ea02e7dbb
+# ╠═18790783-9a10-4262-a595-077ab34ac74f
+# ╠═134c9a66-9a4e-41cb-b4d5-1b338e2f3202
+# ╠═ea73f122-4271-4515-b4c3-006ca85c81ba
+# ╠═14a88fdb-e84c-451d-892c-0f190f4d6027
+# ╠═17feae71-ec64-4f74-b5b1-2870c115e4d4
+# ╠═4010f36c-96e6-4f5e-a5b7-9bee704eeaea
+# ╠═41be3266-eb5d-415e-a5d2-e4eb590b4ca1
+# ╠═d314eaf7-9a82-44dd-8139-46f35c19797c
+# ╠═3fc1ecc3-d62b-425b-bb00-9fcc7985876b
+# ╠═5db34e0b-7042-4d9b-a9f0-ec67d46a33c0
+# ╠═239c519e-d8ce-4307-a2e2-b2891215b88d
+# ╠═95b3fbfe-b32c-425b-ae14-f634b6204cc6
+# ╠═13d9ee56-fad1-46df-a961-f82505e9ee46
+# ╠═2beb4cfc-03be-447f-87cd-121fac56c51d
+# ╠═848e81dc-efd7-4e80-a38f-b6b1042b2367
+# ╠═ce613244-e928-4947-a05d-45b2a393c919
+# ╠═0eada1c8-306a-4bea-95b3-54870acd234e
+# ╠═7f61677b-b1c9-4261-8c4c-a564a188daf0
+# ╠═3ffe7d30-f64e-4263-8520-e9a33715ee26
+# ╠═a1bea253-5630-4da9-95a3-71944c465ab2
+# ╠═15c43887-50d8-4815-9ee1-37142b93567b
+# ╠═5b755aa0-3212-4234-9c73-128454e6276b
+# ╠═43588f13-4b75-4d36-9e98-6e5076cbb5a8
+# ╠═72249ec4-74e5-45a3-ba45-8d5dc7be177f
+# ╠═013eedee-e3e9-4729-bb5d-a6b0040a7d1b
+# ╠═a6050b6a-8a09-4094-857f-414225f76933
+# ╠═22784b43-78e5-4908-ad05-9de01f27f7c4
+# ╠═65139afc-457a-4a76-84f6-55a31b3f0eda
+# ╠═a4613687-eecc-4f24-a6ab-eecdc9c9395d
+# ╠═054d7f10-3dae-4cca-84f8-a0663731802e
+# ╠═66ba1bae-bbcb-4648-99de-dab04e4651e8
+# ╠═6ac1e38d-8c9c-4e4e-93e0-8e906713eccf
+# ╠═95307ba1-5848-4ccd-83e7-1a4065fd80ca
+# ╠═617f7cb3-6a2a-442c-ab46-aacea18ba396
+# ╠═e49384a3-ff50-4a7b-b3f0-dbae7562a24d
+# ╠═933fc4e1-50fa-4f51-af92-607706e94656
+# ╠═15feb48a-e555-4ef0-944c-dd3d06a7c4af
+# ╠═9dc94ba1-6d3b-4a4e-a3ad-427b577d0f15
+# ╠═ed4ec569-41f7-4205-a614-ff21d94d6876
+# ╠═932bab1d-0bde-4eab-898c-94c1f00b0768
+# ╠═9e7b549e-83dc-42ba-9e75-f21b9a318a63
+# ╠═ba4ffae4-150c-41bf-9332-53c13056d662
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002

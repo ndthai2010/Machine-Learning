@@ -8,13 +8,13 @@ using InteractiveUtils
 using DelimitedFiles
 
 # ╔═╡ ace5a351-ce5c-4c59-9644-95b450051aa2
-wine = "D:/University/DT Coding/ML Julia/In Class/X_wine_data.txt"
+wine = "D:/University/DT Coding/Machine-Learning/Datasets/X_wine_data.txt"
 
 # ╔═╡ a5615310-cf48-420e-84f0-7bb805101863
 A = readdlm(wine)
 
 # ╔═╡ 0008d9e7-df25-4384-914d-00c28ec2a126
-path = "D:/University/DT Coding/ML Julia/In Class/Y_wine_data.txt"
+path = "D:/University/DT Coding/Machine-Learning/Datasets/Y_wine_data.txt"
 
 # ╔═╡ 825caa94-1ecb-4e2d-9ea5-92b6f82fc9f2
 B = readdlm(path)

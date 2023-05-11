@@ -4,93 +4,113 @@
 using Markdown
 using InteractiveUtils
 
-# ╔═╡ 3cc96569-5238-4a6d-aa36-8f6e54546387
-using Plots;plotly()
+# ╔═╡ f8190040-b1ad-11ed-1c71-e918de792507
+using Plots; plotly()
 
-# ╔═╡ a9abb380-c7ba-11ed-0bce-7585656609bc
+# ╔═╡ fc97d5c5-7791-4545-b57d-b296fa941d3a
 using DelimitedFiles
 
-# ╔═╡ c89dfbf6-a05e-4039-aecb-ea336152dd51
-whitewine = "D:/University/DT Coding/Machine-Learning/Datasets/winequality-white.csv"
+# ╔═╡ d0c36969-6f33-4d07-91ac-a730267c68c1
+x = -π:0.5:2*π
 
-# ╔═╡ 2546a1c3-fd78-4277-8ad7-416f507bd115
-A = readdlm(whitewine, ';')
+# ╔═╡ e7139cfa-0e6f-499f-afc1-06daccac551e
+length(x)
 
-# ╔═╡ 4f89835d-1019-4da3-9af1-4176f551ca62
-redwine = "D:/University/DT Coding/Machine-Learning/Datasets/winequality-red.csv"
+# ╔═╡ 487ae451-2c6e-4cdd-9fc8-92c48e0f0d05
+collect(x[1:5])
 
-# ╔═╡ 6f4156cd-7394-41ee-8fe5-32c7ef88c1c1
-B = readdlm(redwine, ';')
+# ╔═╡ f3f707d8-2565-4f80-8490-db1449f87d33
+collect(x[end-5:end])
 
-# ╔═╡ 865f0f4c-dd9d-49d4-9cf4-6ae56be4d160
-function readData(path)
-	A = readdlm(path, ';')
-	y = float.(A[2:end,end])
-	X = float.([ones(length(y)) A[2:end, 1:end-1]])
-	return X, y
-end
+# ╔═╡ 98ea746f-6db7-4067-85cf-1c950d38812c
+collect(x[length(x)-5:length(x)])
 
-# ╔═╡ 825c0682-1d0b-419f-bcfa-f9eb58a65306
-X1, y1 = readData(whitewine)
+# ╔═╡ b446e0ff-4850-4b29-ab16-585789d4d889
+y = sin.(x)
 
-# ╔═╡ e2b160ab-a9cc-47bf-a863-5e58feef9bfe
-X2, y2 = readData(redwine)
+# ╔═╡ fb0c6494-b269-4947-951e-cc70fd7b6bff
+plot(x, y)
 
-# ╔═╡ 227605e2-bf33-4a91-9016-331f2dcbfdf9
-function train(X,y)
-	return inv(X'*X)*X'*y
-end
+# ╔═╡ 157ce89c-9019-4b3e-88f5-d966ba666946
+plot(x, y, xlabel="x", ylabel="sin(x)", legend=false)
 
-# ╔═╡ 8db72274-6da3-41d4-a7df-14d927663083
-θ_white = train(X1, y1)
+# ╔═╡ 3e22d84d-4f1c-4a2e-8ca0-bac85cb3ca7e
+z = cos.(x)
 
-# ╔═╡ 33e72a07-4474-48aa-8f68-e3875adb7383
-θ_red = train(X2, y2)
+# ╔═╡ b4c70fca-73c5-42a6-a83f-ad478f45277e
+plot(x, z, xlabel="x", zlabel="sin(x)", legend=false)
 
-# ╔═╡ 3432fd4f-f1f4-4980-8d84-a97a79267862
-predict(θ, xNew) = xNew*θ
+# ╔═╡ cdb459d3-4e71-4a86-93fc-bd3039c1370a
+plot(x, y, xlabel="x", ylabel="sin(x)", legend=false)
 
-# ╔═╡ d5a52030-bd42-4700-ac6e-b17f04f8100e
-ŷ_red = predict(θ_white, X2)
+# ╔═╡ b1059a1a-bd60-4652-9aef-d30c47eaae22
+plot!(x, z, xlabel="x", zlabel="sin(x)", legend=false)
 
-# ╔═╡ dc967a10-d1fe-426d-8642-a82d45c84287
-ŷ_white = predict(θ_red, X1)
+# ╔═╡ 5f16ce60-a79b-4b21-a3e4-0e150bef869b
+plot(x, [y, z], xlabel="x")
 
-# ╔═╡ 0069bd6d-be08-4c60-b7e0-8ade77c56535
-function classify(ŷ, y, ϵ = 0.5)
-	error = abs.(ŷ - y)
-	return error .< ϵ
-end
+# ╔═╡ e9e26262-455a-4252-bbf9-b715935f664b
+plot(x, [y, z], xlabel="x", label=["sin(x)" "cos(x)"])
 
-# ╔═╡ e62a0607-e07a-4024-903f-92be1d1c860d
-function accuracy(ŷ, y, ϵ = 0.5)
-	error = classify(ŷ, y, ϵ)
-	acc = sum(error.== 1)/length(y)
-end
+# ╔═╡ 850afa04-4419-4de3-9e24-40d3f9d5d58e
+function parabola(x) return 2x^2 - 3x + 1 end
 
-# ╔═╡ 47521f49-be63-4922-b607-74ee7b299b22
-accuracy_white = accuracy(ŷ_white, y1)
+# ╔═╡ 03974e1c-3c6d-4f22-9988-a9b79dc14e7c
+plot(parabola, -5, 5, xlabel="x", ylabel="y", label="y=2x^2-3x+1", color=:red, st=:scatter)
 
-# ╔═╡ eefb78ff-ed51-4db9-b7bf-3a18f5d6ca7f
-accuracy_red = accuracy(ŷ_red, y2)
+# ╔═╡ b8b8ca7a-8204-43bd-b7f7-e4d27f717dc9
+A = readdlm("D:\\HUS\\S2Y3\\ML\\lab2\\iris-train.txt")
 
-# ╔═╡ e9444fea-776e-4541-bca2-5c0c1408d52a
-ϵs = 0.4:0.01:0.7
+# ╔═╡ 7d1af367-e0f3-4a75-8b9f-7b04535a7246
+label = Int.(A[:,1])
 
-# ╔═╡ 36e6afbb-2083-4fc9-b347-a57894e2558e
-length(ϵs)
+# ╔═╡ a0c8a653-07f2-49e9-97c7-9eca309048fb
+sepalLength = A[:,2]
 
-# ╔═╡ c60ff2a5-a20d-47c9-b15e-2b3c0f59e54a
-acc_white = [accuracy(ŷ_white, y1, ϵ) for ϵ ∈ ϵs]
+# ╔═╡ 01a2ce39-0df3-4b92-9790-1725d5d79411
+petalLength = A[:,4]
 
-# ╔═╡ 8b0ecd74-c662-4810-a028-358dd3503d57
-acc_red = [accuracy(ŷ_red, y2, ϵ) for ϵ ∈ ϵs]
+# ╔═╡ 80cdf43a-ceb7-461e-a0f0-051db56e1c60
+plot(sepalLength, petalLength, st=:scatter, xlabel="sepal length", ylabel="petal length", title="Iris Flower")
 
-# ╔═╡ 0766a752-3df8-4fb1-9e00-7c56d7903fda
-plot(ϵs, acc_white, xlabel="ϵ", ylabel="Accuracy for white wine", legend=false)
+# ╔═╡ e7cfc944-d2e1-4a49-b940-ba1c7416468d
+k1 = label .== 1
 
-# ╔═╡ 9fb2ff51-aed6-4dea-b810-adb76bd7eb88
-plot(ϵs, acc_red, xlabel="ϵ", ylabel="Accuracy for red wine", legend=false, color=:red)
+# ╔═╡ 19d861a6-3df6-42ce-a4ee-1e2755fbec71
+k2 = label .== 2
+
+# ╔═╡ 519ee559-bad5-413a-84fe-4edf980ac8c1
+k3 = label .== 3
+
+# ╔═╡ b9cbe326-7984-42d5-a80c-a026169c9f81
+sum(k1)
+
+# ╔═╡ f87bd7c9-8eab-4b75-a524-436762894384
+sum(k2)
+
+# ╔═╡ 1f6e86d5-1f5f-450d-b982-0be3e2b2da93
+sum(k3)
+
+# ╔═╡ d3a40dce-a254-4225-9f0f-28d349a82585
+plot(sepalLength[k1], petalLength[k1], st=:scatter, xlabel="sepal length", ylabel="petal length", title="Iris Flowers")
+
+# ╔═╡ 37bfefaf-a540-4bc7-bde7-b6fa9b5ea25d
+plot!(sepalLength[k2], petalLength[k2], st=:scatter)
+
+# ╔═╡ a627ed41-46c4-47d0-864b-d02bdf41642b
+plot!(sepalLength[k3], petalLength[k3], st=:scatter)
+
+# ╔═╡ c559a73f-e1a0-4521-b1dd-8139c50a8015
+plot([sepalLength[k1], sepalLength[k2], sepalLength[k3]], [petalLength[k1], petalLength[k2], petalLength[k3]], xlabel="Sepal length", ylabel="Petal length", st=:scatter, title="Iris Flower")
+
+# ╔═╡ db1da870-7f02-417a-8fe9-c44e998bcaf2
+plot([sepalLength[k1], sepalLength[k2], sepalLength[k3]], [petalLength[k1], petalLength[k2], petalLength[k3]], xlabel="Sepal length", ylabel="Petal length", st=:scatter, title="Iris Flower", markershapes=[:rect :diamond :circle])
+
+# ╔═╡ eb83f454-4010-4647-a5f0-61ef3cdb4f0d
+plot([sepalLength[k1], sepalLength[k2], sepalLength[k3]], [petalLength[k1], petalLength[k2], petalLength[k3]], xlabel="Sepal length", ylabel="Petal length", label=["type1" "type2" "type3"], st=:scatter, title="Iris Flower", markershapes=[:rect :diamond :circle])
+
+# ╔═╡ d9f544bc-156c-4ea0-a293-438de6a67bd7
+
 
 # ╔═╡ 00000000-0000-0000-0000-000000000001
 PLUTO_PROJECT_TOML_CONTENTS = """
@@ -99,7 +119,7 @@ DelimitedFiles = "8bb1440f-4735-579b-a4ab-409b98df4dab"
 Plots = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
 
 [compat]
-Plots = "~1.38.8"
+Plots = "~1.38.5"
 """
 
 # ╔═╡ 00000000-0000-0000-0000-000000000002
@@ -181,9 +201,9 @@ version = "0.12.10"
 
 [[deps.Compat]]
 deps = ["Dates", "LinearAlgebra", "UUIDs"]
-git-tree-sha1 = "7a60c856b9fa189eb34f5f8a6f6b5529b7942957"
+git-tree-sha1 = "61fdd77467a5c3ad071ef8277ac6bd6af7dd4c04"
 uuid = "34da2185-b29b-5c13-b0c7-acf172513d20"
-version = "4.6.1"
+version = "4.6.0"
 
 [[deps.CompilerSupportLibraries_jll]]
 deps = ["Artifacts", "Libdl"]
@@ -284,15 +304,15 @@ version = "3.3.8+0"
 
 [[deps.GR]]
 deps = ["Artifacts", "Base64", "DelimitedFiles", "Downloads", "GR_jll", "HTTP", "JSON", "Libdl", "LinearAlgebra", "Pkg", "Preferences", "Printf", "Random", "Serialization", "Sockets", "TOML", "Tar", "Test", "UUIDs", "p7zip_jll"]
-git-tree-sha1 = "4423d87dc2d3201f3f1768a29e807ddc8cc867ef"
+git-tree-sha1 = "660b2ea2ec2b010bb02823c6d0ff6afd9bdc5c16"
 uuid = "28b8d3ca-fb5f-59d9-8090-bfdbd6d07a71"
-version = "0.71.8"
+version = "0.71.7"
 
 [[deps.GR_jll]]
 deps = ["Artifacts", "Bzip2_jll", "Cairo_jll", "FFMPEG_jll", "Fontconfig_jll", "GLFW_jll", "JLLWrappers", "JpegTurbo_jll", "Libdl", "Libtiff_jll", "Pixman_jll", "Qt5Base_jll", "Zlib_jll", "libpng_jll"]
-git-tree-sha1 = "3657eb348d44575cc5560c80d7e55b812ff6ffe1"
+git-tree-sha1 = "d5e1fd17ac7f3aa4c5287a61ee28d4f8b8e98873"
 uuid = "d2c73de3-f751-5644-a686-071e5b155ba9"
-version = "0.71.8+0"
+version = "0.71.7+0"
 
 [[deps.Gettext_jll]]
 deps = ["Artifacts", "CompilerSupportLibraries_jll", "JLLWrappers", "Libdl", "Libiconv_jll", "Pkg", "XML2_jll"]
@@ -345,9 +365,9 @@ uuid = "3587e190-3f89-42d0-90ee-14403ec27112"
 version = "0.1.8"
 
 [[deps.IrrationalConstants]]
-git-tree-sha1 = "630b497eafcc20001bba38a4651b327dcfc491d2"
+git-tree-sha1 = "7fd44fd4ff43fc60815f8e764c0f352b83c49151"
 uuid = "92d709cd-6900-40b7-9082-c6be49f344b6"
-version = "0.2.2"
+version = "0.1.1"
 
 [[deps.JLFzf]]
 deps = ["Pipe", "REPL", "Random", "fzf_jll"]
@@ -592,9 +612,9 @@ version = "10.40.0+0"
 
 [[deps.Parsers]]
 deps = ["Dates", "SnoopPrecompile"]
-git-tree-sha1 = "478ac6c952fddd4399e71d4779797c538d0ff2bf"
+git-tree-sha1 = "6f4fbcd1ad45905a5dee3f4256fabb49aa2110c6"
 uuid = "69de0a69-1ddd-5017-9359-2bf0b02dc9f0"
-version = "2.5.8"
+version = "2.5.7"
 
 [[deps.Pipe]]
 git-tree-sha1 = "6842804e7867b115ca9de748a0cf6b364523c16d"
@@ -626,9 +646,9 @@ version = "1.3.4"
 
 [[deps.Plots]]
 deps = ["Base64", "Contour", "Dates", "Downloads", "FFMPEG", "FixedPointNumbers", "GR", "JLFzf", "JSON", "LaTeXStrings", "Latexify", "LinearAlgebra", "Measures", "NaNMath", "Pkg", "PlotThemes", "PlotUtils", "Preferences", "Printf", "REPL", "Random", "RecipesBase", "RecipesPipeline", "Reexport", "RelocatableFolders", "Requires", "Scratch", "Showoff", "SnoopPrecompile", "SparseArrays", "Statistics", "StatsBase", "UUIDs", "UnicodeFun", "Unzip"]
-git-tree-sha1 = "f49a45a239e13333b8b936120fe6d793fe58a972"
+git-tree-sha1 = "8ac949bd0ebc46a44afb1fdca1094554a84b086e"
 uuid = "91a5bcdd-55d7-5caf-9e0b-520d859cae80"
-version = "1.38.8"
+version = "1.38.5"
 
 [[deps.Preferences]]
 deps = ["TOML"]
@@ -689,9 +709,9 @@ version = "0.7.0"
 
 [[deps.Scratch]]
 deps = ["Dates"]
-git-tree-sha1 = "30449ee12237627992a99d5e30ae63e4d78cd24a"
+git-tree-sha1 = "f94f779c94e58bf9ea243e77a37e16d9de9126bd"
 uuid = "6c6a2e73-6563-6170-7368-637461726353"
-version = "1.2.0"
+version = "1.1.1"
 
 [[deps.Serialization]]
 uuid = "9e88b42a-f829-5b0c-bbe9-9e923198166b"
@@ -728,9 +748,9 @@ uuid = "2f01184e-e22b-5df5-ae63-d93ebab69eaf"
 
 [[deps.SpecialFunctions]]
 deps = ["ChainRulesCore", "IrrationalConstants", "LogExpFunctions", "OpenLibm_jll", "OpenSpecFun_jll"]
-git-tree-sha1 = "ef28127915f4229c971eb43f3fc075dd3fe91880"
+git-tree-sha1 = "d75bda01f8c31ebb72df80a46c88b25d1c79c56d"
 uuid = "276daf66-3868-5448-9aa4-cd146d93841b"
-version = "2.2.0"
+version = "2.1.7"
 
 [[deps.Statistics]]
 deps = ["LinearAlgebra", "SparseArrays"]
@@ -1029,30 +1049,41 @@ version = "1.4.1+0"
 """
 
 # ╔═╡ Cell order:
-# ╠═3cc96569-5238-4a6d-aa36-8f6e54546387
-# ╠═a9abb380-c7ba-11ed-0bce-7585656609bc
-# ╠═c89dfbf6-a05e-4039-aecb-ea336152dd51
-# ╠═2546a1c3-fd78-4277-8ad7-416f507bd115
-# ╠═4f89835d-1019-4da3-9af1-4176f551ca62
-# ╠═6f4156cd-7394-41ee-8fe5-32c7ef88c1c1
-# ╠═865f0f4c-dd9d-49d4-9cf4-6ae56be4d160
-# ╠═825c0682-1d0b-419f-bcfa-f9eb58a65306
-# ╠═e2b160ab-a9cc-47bf-a863-5e58feef9bfe
-# ╠═227605e2-bf33-4a91-9016-331f2dcbfdf9
-# ╠═8db72274-6da3-41d4-a7df-14d927663083
-# ╠═33e72a07-4474-48aa-8f68-e3875adb7383
-# ╠═3432fd4f-f1f4-4980-8d84-a97a79267862
-# ╠═d5a52030-bd42-4700-ac6e-b17f04f8100e
-# ╠═dc967a10-d1fe-426d-8642-a82d45c84287
-# ╠═0069bd6d-be08-4c60-b7e0-8ade77c56535
-# ╠═e62a0607-e07a-4024-903f-92be1d1c860d
-# ╠═47521f49-be63-4922-b607-74ee7b299b22
-# ╠═eefb78ff-ed51-4db9-b7bf-3a18f5d6ca7f
-# ╠═e9444fea-776e-4541-bca2-5c0c1408d52a
-# ╠═36e6afbb-2083-4fc9-b347-a57894e2558e
-# ╠═c60ff2a5-a20d-47c9-b15e-2b3c0f59e54a
-# ╠═8b0ecd74-c662-4810-a028-358dd3503d57
-# ╠═0766a752-3df8-4fb1-9e00-7c56d7903fda
-# ╠═9fb2ff51-aed6-4dea-b810-adb76bd7eb88
+# ╠═f8190040-b1ad-11ed-1c71-e918de792507
+# ╠═d0c36969-6f33-4d07-91ac-a730267c68c1
+# ╠═e7139cfa-0e6f-499f-afc1-06daccac551e
+# ╠═487ae451-2c6e-4cdd-9fc8-92c48e0f0d05
+# ╠═f3f707d8-2565-4f80-8490-db1449f87d33
+# ╠═98ea746f-6db7-4067-85cf-1c950d38812c
+# ╠═b446e0ff-4850-4b29-ab16-585789d4d889
+# ╠═fb0c6494-b269-4947-951e-cc70fd7b6bff
+# ╠═157ce89c-9019-4b3e-88f5-d966ba666946
+# ╠═3e22d84d-4f1c-4a2e-8ca0-bac85cb3ca7e
+# ╠═b4c70fca-73c5-42a6-a83f-ad478f45277e
+# ╠═cdb459d3-4e71-4a86-93fc-bd3039c1370a
+# ╠═b1059a1a-bd60-4652-9aef-d30c47eaae22
+# ╠═5f16ce60-a79b-4b21-a3e4-0e150bef869b
+# ╠═e9e26262-455a-4252-bbf9-b715935f664b
+# ╠═850afa04-4419-4de3-9e24-40d3f9d5d58e
+# ╠═03974e1c-3c6d-4f22-9988-a9b79dc14e7c
+# ╠═fc97d5c5-7791-4545-b57d-b296fa941d3a
+# ╠═b8b8ca7a-8204-43bd-b7f7-e4d27f717dc9
+# ╠═7d1af367-e0f3-4a75-8b9f-7b04535a7246
+# ╠═a0c8a653-07f2-49e9-97c7-9eca309048fb
+# ╠═01a2ce39-0df3-4b92-9790-1725d5d79411
+# ╠═80cdf43a-ceb7-461e-a0f0-051db56e1c60
+# ╠═e7cfc944-d2e1-4a49-b940-ba1c7416468d
+# ╠═19d861a6-3df6-42ce-a4ee-1e2755fbec71
+# ╠═519ee559-bad5-413a-84fe-4edf980ac8c1
+# ╠═b9cbe326-7984-42d5-a80c-a026169c9f81
+# ╠═f87bd7c9-8eab-4b75-a524-436762894384
+# ╠═1f6e86d5-1f5f-450d-b982-0be3e2b2da93
+# ╠═d3a40dce-a254-4225-9f0f-28d349a82585
+# ╠═37bfefaf-a540-4bc7-bde7-b6fa9b5ea25d
+# ╠═a627ed41-46c4-47d0-864b-d02bdf41642b
+# ╠═c559a73f-e1a0-4521-b1dd-8139c50a8015
+# ╠═db1da870-7f02-417a-8fe9-c44e998bcaf2
+# ╠═eb83f454-4010-4647-a5f0-61ef3cdb4f0d
+# ╠═d9f544bc-156c-4ea0-a293-438de6a67bd7
 # ╟─00000000-0000-0000-0000-000000000001
 # ╟─00000000-0000-0000-0000-000000000002
